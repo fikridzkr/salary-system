@@ -3,6 +3,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpException,
+  HttpStatus,
   Param,
   Post,
   Put,
@@ -18,12 +20,23 @@ export class EmployeeController {
 
   @Get()
   async findAll(): Promise<Employee[]> {
-    return this.employeeService.findAll();
+    const employees: Employee[] = this.employeeService.findAll();
+
+    if (employees.length === 0)
+      throw new HttpException('Data Employee Not Found', HttpStatus.NOT_FOUND);
+    if (employees) return employees;
+    else throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST);
   }
 
   @Get(':id')
   async findOne(@Param('id') id: number): Promise<Employee> {
-    return this.employeeService.findOne(id);
+    const employee: Employee = this.employeeService.findOne(id);
+    if (employee) return employee;
+    else
+      throw new HttpException(
+        `Employee Id ${id} Not Found`,
+        HttpStatus.NOT_FOUND,
+      );
   }
 
   @Post()
@@ -37,11 +50,22 @@ export class EmployeeController {
     @Param('id') id: number,
     @Body() updateEmployeeDto: UpdateEmployeeDto,
   ): Promise<Employee[]> {
-    return this.employeeService.update(id, updateEmployeeDto);
+    const employees: Employee[] = this.employeeService.update(
+      id,
+      updateEmployeeDto,
+    );
+    if (employees) return employees;
+    else throw new HttpException(`Bad Request`, HttpStatus.BAD_REQUEST);
   }
 
   @Delete(':id')
   async remove(@Param('id') id: number): Promise<Employee[]> {
-    return this.employeeService.remove(id);
+    const employee: Employee[] = this.employeeService.remove(id);
+    if (employee) return employee;
+    else
+      throw new HttpException(
+        `Employee Id ${id} Not Found`,
+        HttpStatus.NOT_FOUND,
+      );
   }
 }
