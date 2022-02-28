@@ -13,19 +13,35 @@ import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
 import { EmployeeService } from './employee.service';
 import { Employee } from './interfaces/employee.interface';
+import { HandleResponse } from '../utils/interfaces/response.interface';
 
 @Controller('employee')
 export class EmployeeController {
   constructor(private employeeService: EmployeeService) {}
 
   @Get()
-  async findAll(): Promise<Employee[]> {
+  async findAll(): Promise<HandleResponse<Employee[]>> {
     const employees: Employee[] = this.employeeService.findAll();
 
-    if (employees.length === 0)
-      throw new HttpException('Data Employee Not Found', HttpStatus.NOT_FOUND);
-    if (employees) return employees;
-    else throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST);
+    if (employees)
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Show Data employees',
+        data: employees,
+        pagination: {},
+        error: false,
+      };
+    else
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: 'Failed to show data employees',
+          data: employees,
+          pagination: {},
+          error: false,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
   }
 
   @Get(':id')
