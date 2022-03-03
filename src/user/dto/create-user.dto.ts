@@ -4,15 +4,10 @@ import Employee from 'src/employee/employee.entity';
 export class CreateUserDto {
   @IsNotEmpty()
   email: string;
-
   @IsNotEmpty()
   password: string;
-
-  @IsNotEmpty()
-  employeeId: number;
-
-  employee: Employee;
-
   @IsNotEmpty()
   roles: RolesUser;
+  employeeId: number;
+  employee: Employee;
 }

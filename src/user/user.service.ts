@@ -1,5 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { RolesUser } from 'src/common/enums/roles.enum';
+import { PostgresErrorCode } from 'src/database/postgresErrorCodes';
 import Employee from 'src/employee/employee.entity';
 import { Connection, Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -16,23 +18,33 @@ export class UserService {
   private employeeRepository = this.connection.getRepository(Employee);
 
   async create(user: CreateUserDto) {
-    const employee = await this.employeeRepository.findOne(user.employeeId);
     try {
-      if (employee) {
-        user.employee = employee;
-        const newUser = await this.userRepository.create(user);
-        await this.userRepository.save(newUser);
-        return newUser;
-      } else {
-        throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+      const { employeeId, roles } = user;
+      if (employeeId && roles !== RolesUser.SUPERADMIN) {
+        const employee = await this.employeeRepository.findOne(user.employeeId);
+        if (employee) user.employee = employee;
+        else throw new HttpException('User not found', HttpStatus.NOT_FOUND);
       }
+      const newUser = await this.userRepository.create(user);
+      await this.userRepository.save(newUser);
+      return newUser;
     } catch (error) {
-      if (error.code == 23505)
+      console.log(error);
+      if (error.code === PostgresErrorCode.UniqueViolation && user.employeeId)
         throw new HttpException(
-          `User ${employee.name} is already exist`,
+          `User is already exist`,
           HttpStatus.BAD_REQUEST
         );
-      else throw error;
+      if (error.code == PostgresErrorCode.UniqueViolation)
+        throw new HttpException(
+          `Email is already exist`,
+          HttpStatus.BAD_REQUEST
+        );
+      else
+        throw new HttpException(
+          'Something went wrong',
+          HttpStatus.INTERNAL_SERVER_ERROR
+        );
     }
   }
 
