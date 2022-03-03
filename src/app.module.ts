@@ -7,9 +7,12 @@ import { EmployeeController } from './employee/employee.controller';
 import { ConfigModule } from '@nestjs/config';
 import * as Joi from '@hapi/joi';
 import { DatabaseModule } from './database/database.module';
+import { UserModule } from './user/user.module';
+import { UserController } from './user/user.controller';
 @Module({
   imports: [
     EmployeeModule,
+    UserModule,
     ConfigModule.forRoot({
       validationSchema: Joi.object({
         // POSTGRES_HOST: Joi.string().required(),
@@ -29,6 +32,8 @@ import { DatabaseModule } from './database/database.module';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(LoggerMiddleware).forRoutes(EmployeeController);
+    consumer
+      .apply(LoggerMiddleware)
+      .forRoutes(EmployeeController, UserController);
   }
 }
