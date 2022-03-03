@@ -1,0 +1,1 @@
+docker compose up salary-system-prod salary-system-postgres-1 pgadmin

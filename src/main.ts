@@ -10,5 +10,6 @@ async function bootstrap() {
     type: VersioningType.URI
   });
   await app.listen(3000);
+  console.log('RUNNING ON PORT 3000');
 }
 bootstrap();
