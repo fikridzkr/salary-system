@@ -1,5 +1,4 @@
 import { IsNotEmpty } from 'class-validator';
-
 export class CreateEmployeeDto {
   @IsNotEmpty()
   employeeId: number;
@@ -9,6 +8,9 @@ export class CreateEmployeeDto {
 
   @IsNotEmpty()
   age: number;
+
+  @IsNotEmpty()
+  phoneNumber: number;
 
   @IsNotEmpty()
   position: string;

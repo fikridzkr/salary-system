@@ -43,7 +43,7 @@ export class EmployeeService {
   }
 
   async delete(id: number): Promise<Employee[]> {
-    const deleteResponse = await this.employeeRepository.delete(id);
+    const deleteResponse = await this.employeeRepository.softDelete(id);
     if (!deleteResponse.affected) {
       throw new HttpException('Employee not found', HttpStatus.NOT_FOUND);
     }

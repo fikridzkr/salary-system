@@ -1,4 +1,11 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  DeleteDateColumn,
+  UpdateDateColumn
+} from 'typeorm';
 
 @Entity()
 class Employee {
@@ -15,6 +22,9 @@ class Employee {
   public age: number;
 
   @Column()
+  public phoneNumber: number;
+
+  @Column()
   public position: string;
 
   @Column()
@@ -28,6 +38,15 @@ class Employee {
 
   @Column()
   public totalSalary: number;
+
+  @CreateDateColumn()
+  public createdAt: Date;
+
+  @UpdateDateColumn()
+  public updatedAt: Date;
+
+  @DeleteDateColumn()
+  public deletedAt: Date;
 }
 
 export default Employee;
