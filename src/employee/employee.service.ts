@@ -1,32 +1,52 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
-import { Employee } from './interfaces/employee.interface';
+import { InjectRepository } from '@nestjs/typeorm';
+import Employee from './employee.entity';
+import { Repository } from 'typeorm';
+import { CreateEmployeeDto } from './dto/create-employee.dto';
 
 @Injectable()
 export class EmployeeService {
-  private employees: Employee[] = [];
+  constructor(
+    @InjectRepository(Employee)
+    private employeeRepository: Repository<Employee>
+  ) {}
 
-  create(employee: Employee) {
-    this.employees.push(employee);
+  async create(employee: CreateEmployeeDto) {
+    const newEmployee = await this.employeeRepository.create(employee);
+    await this.employeeRepository.save(newEmployee);
+    return newEmployee;
   }
 
-  update(id: number, employee: UpdateEmployeeDto) {
-    this.employees = this.employees.map((item) =>
-      item.id === Number(id) ? { id, ...employee } : item,
-    );
-    return this.employees;
+  async update(id: number, employee: UpdateEmployeeDto) {
+    await this.employeeRepository.update(id, employee);
+    const updatedEmployee = await this.employeeRepository.findOne(id);
+    if (updatedEmployee) {
+      return updatedEmployee;
+    }
+    throw new HttpException('Employee not found', HttpStatus.NOT_FOUND);
   }
 
-  findAll(): Employee[] {
-    return this.employees;
+  async findAll(): Promise<Employee[]> {
+    const employees = await this.employeeRepository.find();
+    if (employees) {
+      return employees;
+    }
   }
 
-  findOne(id: number): Employee {
-    return this.employees.filter((item) => item.id === Number(id))[0];
+  async findOne(id: number): Promise<Employee> {
+    const employee = await this.employeeRepository.findOne(id);
+    if (employee) {
+      return employee;
+    }
+    throw new HttpException('Employee not found.', HttpStatus.NOT_FOUND);
   }
 
-  remove(id: number): Employee[] {
-    this.employees = this.employees.filter((item) => item.id !== Number(id));
-    return this.employees;
+  async delete(id: number): Promise<Employee[]> {
+    const deleteResponse = await this.employeeRepository.delete(id);
+    if (!deleteResponse.affected) {
+      throw new HttpException('Employee not found', HttpStatus.NOT_FOUND);
+    }
+    return this.employeeRepository.find();
   }
 }

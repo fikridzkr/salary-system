@@ -3,21 +3,19 @@ import {
   Controller,
   Delete,
   Get,
-  HttpException,
-  HttpStatus,
   Param,
+  ParseIntPipe,
+  Patch,
   Post,
-  Put,
-  UseGuards,
+  UseGuards
 } from '@nestjs/common';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
 import { EmployeeService } from './employee.service';
-import { Employee } from './interfaces/employee.interface';
-import { HandleResponse } from '../utils/interfaces/response.interface';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { Roles } from 'src/common/decarators/roles.decorator';
 import { RolesUser } from 'src/common/enums/roles.enum';
+import Employee from './employee.entity';
 
 @Controller('employee')
 @UseGuards(RolesGuard)
@@ -25,39 +23,15 @@ export class EmployeeController {
   constructor(private employeeService: EmployeeService) {}
 
   @Get()
-  async findAll(): Promise<HandleResponse<Employee[]>> {
-    const employees: Employee[] = this.employeeService.findAll();
-
-    if (employees)
-      return {
-        statusCode: HttpStatus.OK,
-        message: 'Show Data employees',
-        data: employees,
-        pagination: {},
-        error: false,
-      };
-    else
-      throw new HttpException(
-        {
-          statusCode: HttpStatus.BAD_REQUEST,
-          message: 'Failed to show data employees',
-          data: employees,
-          pagination: {},
-          error: false,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+  async findAll(): Promise<Employee[]> {
+    const employees: Promise<Employee[]> = this.employeeService.findAll();
+    return employees;
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: number): Promise<Employee> {
-    const employee: Employee = this.employeeService.findOne(id);
+  async findOne(@Param('id', ParseIntPipe) id: number): Promise<Employee> {
+    const employee: Promise<Employee> = this.employeeService.findOne(id);
     if (employee) return employee;
-    else
-      throw new HttpException(
-        `Employee Id ${id} Not Found`,
-        HttpStatus.NOT_FOUND,
-      );
   }
 
   @Post()
@@ -67,29 +41,23 @@ export class EmployeeController {
     return createEmployeeDto;
   }
 
-  @Put(':id')
+  @Patch(':id')
   @Roles(RolesUser.ADMIN)
   async update(
-    @Param('id') id: number,
-    @Body() updateEmployeeDto: UpdateEmployeeDto,
-  ): Promise<Employee[]> {
-    const employees: Employee[] = this.employeeService.update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateEmployeeDto: UpdateEmployeeDto
+  ): Promise<Employee> {
+    const employee: Promise<Employee> = this.employeeService.update(
       id,
-      updateEmployeeDto,
+      updateEmployeeDto
     );
-    if (employees) return employees;
-    else throw new HttpException(`Bad Request`, HttpStatus.BAD_REQUEST);
+    if (employee) return employee;
   }
 
   @Delete(':id')
   @Roles(RolesUser.ADMIN)
-  async remove(@Param('id') id: number): Promise<Employee[]> {
-    const employee: Employee[] = this.employeeService.remove(id);
-    if (employee) return employee;
-    else
-      throw new HttpException(
-        `Employee Id ${id} Not Found`,
-        HttpStatus.NOT_FOUND,
-      );
+  async delete(@Param('id', ParseIntPipe) id: number): Promise<Employee[]> {
+    const employee = this.employeeService.delete(id);
+    return employee;
   }
 }
