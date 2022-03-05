@@ -55,12 +55,22 @@ export class UserService {
 
   async update(id: number, user: UpdateUserDto) {
     try {
+      let newPassword: string;
+      const { employeeId, roles, password } = user;
+      if (employeeId && roles !== RolesUser.SUPERADMIN) {
+        const employee = await this.employeeRepository.findOne(employeeId);
+        if (employee) user.employee = employee;
+        else throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+      }
+      if (password) {
+        newPassword = await bcrypt.hash(password, 10);
+        user.password = newPassword;
+      }
       await this.userRepository.update(id, user);
       const updatedUser = await this.userRepository.findOne(id);
       if (updatedUser) {
         return updatedUser;
       }
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     } catch (error) {
       throw error;
     }
