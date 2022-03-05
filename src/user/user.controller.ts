@@ -9,16 +9,16 @@ import {
   Post,
   UseGuards
 } from '@nestjs/common';
-import { RolesGuard } from 'src/common/guards/roles.guard';
 import User from './user.entity';
 import { UserService } from './user.service';
 import { Roles } from '../common/decarators/roles.decorator';
 import { RolesUser } from 'src/common/enums/roles.enum';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @Controller('user')
-@UseGuards(RolesGuard)
+@UseGuards(JwtAuthGuard)
 export class UserController {
   constructor(private userService: UserService) {}
 
@@ -35,7 +35,6 @@ export class UserController {
   }
 
   @Post()
-  @Roles(RolesUser.ADMIN)
   async create(@Body() createUserDto: CreateUserDto) {
     const user = await this.userService.create(createUserDto);
     return user;

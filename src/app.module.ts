@@ -1,17 +1,16 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { Module } from '@nestjs/common';
+import * as Joi from '@hapi/joi';
+import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { EmployeeModule } from './employee/employee.module';
-import { LoggerMiddleware } from './common/middleware/logger.middleware';
-import { EmployeeController } from './employee/employee.controller';
-import { ConfigModule } from '@nestjs/config';
-import * as Joi from '@hapi/joi';
 import { DatabaseModule } from './database/database.module';
 import { UserModule } from './user/user.module';
-import { UserController } from './user/user.controller';
+import { AuthModule } from './auth/auth.module';
 @Module({
   imports: [
     EmployeeModule,
+    AuthModule,
     UserModule,
     ConfigModule.forRoot({
       validationSchema: Joi.object({
@@ -21,7 +20,9 @@ import { UserController } from './user/user.controller';
         POSTGRES_USER: Joi.string().required(),
         POSTGRES_PASSWORD: Joi.string().required(),
         POSTGRES_DB: Joi.string().required(),
-        PORT: Joi.number()
+        PORT: Joi.number(),
+        JWT_SECRET: Joi.string().required(),
+        JWT_EXPIRATION_TIME: Joi.string().required()
       }),
       isGlobal: true
     }),
@@ -30,10 +31,4 @@ import { UserController } from './user/user.controller';
   controllers: [AppController],
   providers: [AppService]
 })
-export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(LoggerMiddleware)
-      .forRoutes(EmployeeController, UserController);
-  }
-}
+export class AppModule {}

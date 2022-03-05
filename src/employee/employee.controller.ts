@@ -12,13 +12,13 @@ import {
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
 import { EmployeeService } from './employee.service';
-import { RolesGuard } from 'src/common/guards/roles.guard';
 import { Roles } from 'src/common/decarators/roles.decorator';
 import { RolesUser } from 'src/common/enums/roles.enum';
 import Employee from './employee.entity';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('employee')
-@UseGuards(RolesGuard)
+@UseGuards(JwtAuthGuard)
 export class EmployeeController {
   constructor(private employeeService: EmployeeService) {}
 

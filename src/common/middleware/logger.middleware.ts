@@ -2,7 +2,7 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
-  NestMiddleware,
+  NestMiddleware
 } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 
@@ -14,13 +14,13 @@ export class LoggerMiddleware implements NestMiddleware {
     else
       throw new HttpException(
         {
-          statusCode: HttpStatus.FORBIDDEN,
-          message: 'Forbidden.',
+          statusCode: HttpStatus.UNAUTHORIZED,
+          message: 'Unauthorized.',
           data: [],
           pagination: {},
-          error: false,
+          error: false
         },
-        HttpStatus.FORBIDDEN,
+        HttpStatus.FORBIDDEN
       );
   }
 }

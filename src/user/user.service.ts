@@ -7,6 +7,7 @@ import { Connection, Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import User from './user.entity';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class UserService {
@@ -19,13 +20,17 @@ export class UserService {
 
   async create(user: CreateUserDto) {
     try {
-      const { employeeId, roles } = user;
+      const { employeeId, roles, password } = user;
+      const hashedPassword = await bcrypt.hash(password, 10);
       if (employeeId && roles !== RolesUser.SUPERADMIN) {
         const employee = await this.employeeRepository.findOne(user.employeeId);
         if (employee) user.employee = employee;
         else throw new HttpException('User not found', HttpStatus.NOT_FOUND);
       }
-      const newUser = await this.userRepository.create(user);
+      const newUser = await this.userRepository.create({
+        ...user,
+        password: hashedPassword
+      });
       await this.userRepository.save(newUser);
       return newUser;
     } catch (error) {
