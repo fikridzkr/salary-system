@@ -11,7 +11,6 @@ import {
   UseGuards,
   UseInterceptors
 } from '@nestjs/common';
-import User from './user.entity';
 import { UserService } from './user.service';
 import { Roles } from '../common/decarators/roles.decorator';
 import { RolesUser } from 'src/common/enums/roles.enum';
@@ -19,8 +18,11 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { TransformInterceptor } from 'src/utils/helpers/transformInterceptor';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+@ApiBearerAuth()
 @Controller('user')
+@ApiTags('user')
 @UseGuards(JwtAuthGuard)
 @UseInterceptors(TransformInterceptor)
 export class UserController {

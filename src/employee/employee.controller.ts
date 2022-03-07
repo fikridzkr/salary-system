@@ -18,8 +18,11 @@ import { Roles } from 'src/common/decarators/roles.decorator';
 import { RolesUser } from 'src/common/enums/roles.enum';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { TransformInterceptor } from 'src/utils/helpers/transformInterceptor';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+@ApiBearerAuth()
 @Controller('employee')
+@ApiTags('employee')
 @UseGuards(JwtAuthGuard)
 @UseInterceptors(TransformInterceptor)
 export class EmployeeController {
