@@ -7,6 +7,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
   UseGuards
 } from '@nestjs/common';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
@@ -23,8 +24,8 @@ export class EmployeeController {
   constructor(private employeeService: EmployeeService) {}
 
   @Get()
-  async findAll(): Promise<Employee[]> {
-    const employees: Promise<Employee[]> = this.employeeService.findAll();
+  async findAll(@Query() query): Promise<object> {
+    const employees = this.employeeService.findAll(query);
     return employees;
   }
 

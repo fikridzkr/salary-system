@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import Employee from './employee.entity';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 
 @Injectable()
@@ -27,11 +27,21 @@ export class EmployeeService {
     throw new HttpException('Employee not found', HttpStatus.NOT_FOUND);
   }
 
-  async findAll(): Promise<Employee[]> {
-    const employees = await this.employeeRepository.find();
-    if (employees) {
-      return employees;
-    }
+  async findAll(query): Promise<object> {
+    const limit = query.limit || 10;
+    const page = query.page || 1;
+    const offset = (page - 1) * limit;
+    const keyword = query.keyword || '';
+    const [result, total] = await this.employeeRepository.findAndCount({
+      where: { name: Like('%' + keyword + '%') },
+      order: { name: 'DESC' },
+      take: limit,
+      skip: offset
+    });
+    return {
+      data: result,
+      count: total
+    };
   }
 
   async findOne(id: number): Promise<Employee> {

@@ -7,6 +7,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
   UseGuards
 } from '@nestjs/common';
 import User from './user.entity';
@@ -23,8 +24,8 @@ export class UserController {
   constructor(private userService: UserService) {}
 
   @Get()
-  async findAll(): Promise<User[]> {
-    const users: Promise<User[]> = this.userService.findAll();
+  async findAll(@Query() query): Promise<object> {
+    const users = this.userService.findAll(query);
     return users;
   }
 

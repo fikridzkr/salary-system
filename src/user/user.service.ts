@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { RolesUser } from 'src/common/enums/roles.enum';
 import { PostgresErrorCode } from 'src/database/postgresErrorCodes';
 import Employee from 'src/employee/employee.entity';
-import { Connection, Repository } from 'typeorm';
+import { Connection, Like, Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import User from './user.entity';
@@ -76,11 +76,22 @@ export class UserService {
     }
   }
 
-  async findAll(): Promise<User[]> {
-    const users = await this.userRepository.find({ relations: ['employee'] });
-    if (users) {
-      return users;
-    }
+  async findAll(query): Promise<object> {
+    const limit = query.limit || 10;
+    const page = query.page || 1;
+    const offset = (page - 1) * limit;
+    const keyword = query.keyword || '';
+    const [result, total] = await this.userRepository.findAndCount({
+      relations: ['employee'],
+      where: { email: Like('%' + keyword + '%') },
+      order: { email: 'DESC' },
+      take: limit,
+      skip: offset
+    });
+    return {
+      data: result,
+      count: total
+    };
   }
 
   async findOne(id: number): Promise<User> {
