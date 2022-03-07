@@ -1,1 +1,8 @@
-docker-compose start salary-system-prod salary-system-postgres-1 pgadmin
+# Start Docker
+# docker-compose start prod postgres pgadmin
+
+# build and start docker
+# docker-compose up prod postgres pgadmin
+
+# Build Docker and update packages
+docker-compose up --build -V prod postgres pgadmin
