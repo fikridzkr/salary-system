@@ -1,7 +1,6 @@
-export interface HandleResponse<T> {
+export interface Response<T> {
   statusCode: number;
   message: string;
   data: T;
-  pagination: object;
-  error: boolean;
+  count: number;
 }

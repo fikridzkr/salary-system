@@ -8,7 +8,8 @@ import {
   Patch,
   Post,
   Query,
-  UseGuards
+  UseGuards,
+  UseInterceptors
 } from '@nestjs/common';
 import User from './user.entity';
 import { UserService } from './user.service';
@@ -17,9 +18,11 @@ import { RolesUser } from 'src/common/enums/roles.enum';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { TransformInterceptor } from 'src/utils/helpers/transformInterceptor';
 
 @Controller('user')
 @UseGuards(JwtAuthGuard)
+@UseInterceptors(TransformInterceptor)
 export class UserController {
   constructor(private userService: UserService) {}
 
@@ -30,9 +33,9 @@ export class UserController {
   }
 
   @Get(':id')
-  async findOne(@Param('id', ParseIntPipe) id: number): Promise<User> {
-    const user: Promise<User> = this.userService.findOne(id);
-    if (user) return user;
+  async findOne(@Param('id', ParseIntPipe) id: number): Promise<object> {
+    const user: Promise<object> = this.userService.findOne(id);
+    return user;
   }
 
   @Post()
@@ -46,14 +49,14 @@ export class UserController {
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateUserDto: UpdateUserDto
-  ): Promise<User> {
-    const user: Promise<User> = this.userService.update(id, updateUserDto);
+  ): Promise<object> {
+    const user: Promise<object> = this.userService.update(id, updateUserDto);
     return user;
   }
 
   @Delete(':id')
   @Roles(RolesUser.ADMIN)
-  async delete(@Param('id', ParseIntPipe) id: number): Promise<User[]> {
+  async delete(@Param('id', ParseIntPipe) id: number): Promise<object> {
     const user = this.userService.delete(id);
     return user;
   }

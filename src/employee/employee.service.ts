@@ -15,14 +15,20 @@ export class EmployeeService {
   async create(employee: CreateEmployeeDto) {
     const newEmployee = await this.employeeRepository.create(employee);
     await this.employeeRepository.save(newEmployee);
-    return newEmployee;
+    return {
+      data: newEmployee,
+      message: 'Employee success created.'
+    };
   }
 
   async update(id: number, employee: UpdateEmployeeDto) {
     await this.employeeRepository.update(id, employee);
     const updatedEmployee = await this.employeeRepository.findOne(id);
     if (updatedEmployee) {
-      return updatedEmployee;
+      return {
+        data: updatedEmployee,
+        message: 'Employee success edited.'
+      };
     }
     throw new HttpException('Employee not found', HttpStatus.NOT_FOUND);
   }
@@ -40,23 +46,30 @@ export class EmployeeService {
     });
     return {
       data: result,
-      count: total
+      count: total,
+      message: 'Show data Employees.'
     };
   }
 
-  async findOne(id: number): Promise<Employee> {
-    const employee = await this.employeeRepository.findOne(id);
-    if (employee) {
-      return employee;
+  async findOne(id: number): Promise<object> {
+    const result = await this.employeeRepository.findOne(id);
+    if (result) {
+      return {
+        data: result,
+        message: 'Show data employee.'
+      };
     }
     throw new HttpException('Employee not found.', HttpStatus.NOT_FOUND);
   }
 
-  async delete(id: number): Promise<Employee[]> {
+  async delete(id: number): Promise<object> {
     const deleteResponse = await this.employeeRepository.softDelete(id);
     if (!deleteResponse.affected) {
       throw new HttpException('Employee not found', HttpStatus.NOT_FOUND);
     }
-    return this.employeeRepository.find();
+    return {
+      data: deleteResponse,
+      message: 'Delete employees success.'
+    };
   }
 }

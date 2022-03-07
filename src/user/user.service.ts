@@ -32,9 +32,11 @@ export class UserService {
         password: hashedPassword
       });
       await this.userRepository.save(newUser);
-      return newUser;
+      return {
+        data: newUser,
+        message: 'User success created.'
+      };
     } catch (error) {
-      console.log(error);
       if (error.code === PostgresErrorCode.UniqueViolation && user.employeeId)
         throw new HttpException(
           `User is already exist`,
@@ -67,9 +69,14 @@ export class UserService {
         user.password = newPassword;
       }
       await this.userRepository.update(id, user);
-      const updatedUser = await this.userRepository.findOne(id);
+      const updatedUser = await this.userRepository.findOne(id, {
+        relations: ['employee']
+      });
       if (updatedUser) {
-        return updatedUser;
+        return {
+          data: updatedUser,
+          message: 'Employee success edited.'
+        };
       }
     } catch (error) {
       throw error;
@@ -94,21 +101,27 @@ export class UserService {
     };
   }
 
-  async findOne(id: number): Promise<User> {
+  async findOne(id: number): Promise<object> {
     const user = await this.userRepository.findOne(id, {
       relations: ['employee']
     });
     if (user) {
-      return user;
+      return {
+        data: user,
+        message: 'Show data employee'
+      };
     }
     throw new HttpException('User not found.', HttpStatus.NOT_FOUND);
   }
 
-  async delete(id: number): Promise<User[]> {
+  async delete(id: number): Promise<object> {
     const deleteResponse = await this.userRepository.softDelete(id);
     if (!deleteResponse.affected) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
-    return this.userRepository.find();
+    return {
+      data: deleteResponse,
+      message: 'Delete employees success.'
+    };
   }
 }
